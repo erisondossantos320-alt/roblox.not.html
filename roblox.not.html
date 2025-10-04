@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox</title>
+  <style>
+    /* ... Seu CSS igual ... */
+  </style>
+</head>
+<body>
+  <div id="notibar">⚠️ Roblox ⚠️</div>
+  <div id="main-msg">Clique para iniciar!</div>
+  <div id="sub-msg">Permita para o efeito completo.</div>
+  <button id="btn">INICIAR</button>
+  <audio id="audio-alert" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12b1b2efc7.mp3"></audio>
+  <script>
+    const messages = [
+      "Atenção: Intrusão detectada!",
+      "Processando ameaça...",
+      "Todos os arquivos estão sendo corrompidos!",
+      "Seu rosto está sendo capturado pela câmera...",
+      "Enviando dados para servidor desconhecido...",
+      "Vírus crítico instalado!",
+      "Falha no sistema!",
+      "Formatando disco em 5...",
+      "4...",
+      "3...",
+      "2...",
+      "1...",
+      "Erro fatal! Reinicie imediatamente.",
+      "Tela azul da morte detectada.",
+      "Saída bloqueada! Reinicie o navegador para escapar."
+    ];
+    const mainMsg = document.getElementById("main-msg");
+    const subMsg = document.getElementById("sub-msg");
+    const btn = document.getElementById("btn");
+    const audioAlert = document.getElementById("audio-alert");
+    const notibar = document.getElementById("notibar");
+    let i = 0;
+    let notiEnabled = false;
+
+    function playSound() {
+      audioAlert.currentTime = 0;
+      audioAlert.play();
+    }
+
+    function sendNotification(text) {
+      if (notiEnabled && Notification.permission === "granted") {
+        try {
+          new Notification("⚠️ ALERTA VIRUS ⚠️", { body: text });
+        } catch (e) {
+          // fallback se erro
+        }
+      }
+    }
+
+    function vibrateUser() {
+      if (navigator.vibrate) {
+        navigator.vibrate([300, 100, 300, 100, 300]);
+      }
+    }
+
+    function blockBack() {
+      history.pushState(null, null, location.href);
+      window.onpopstate = function () {
+        history.go(1);
+        alert("Tentar sair não funciona! Dispositivo ainda bloqueado.");
+        mainMsg.textContent = "⚠️ SISTEMA BLOQUEADO ⚠️";
+        document.body.style.background = "#b00";
+        playSound();
+        vibrateUser();
+        sendNotification("Saída bloqueada! Reinicie o navegador.");
+      };
+    }
+
+    function trollLoop() {
+      setTimeout(() => {
+        document.body.style.background = (i % 2 === 0) ? "#000" : "#b00";
+        mainMsg.textContent = messages[i % messages.length];
+        playSound();
+        vibrateUser();
+        sendNotification(messages[i % messages.length]);
+        alert("Saída bloqueada! Reinicie o navegador para escapar.");
+        i++;
+        trollLoop();
+      }, 700);
+    }
+
+    btn.onclick = function() {
+      btn.style.display = "none";
+      blockBack();
+      // Solicita permissão de notificação com feedback
+      if ("Notification" in window) {
+        Notification.requestPermission().then((perm) => {
+          if (perm === "granted") {
+            notiEnabled = true;
+            alert("Notificações ativadas! Você verá na barra do sistema.");
+          } else {
+            alert("Notificações BLOQUEADAS ou NEGADAS. Não aparecerá no sistema!");
+          }
+          trollLoop();
+        });
+      } else {
+        alert("Seu navegador não suporta notificações.");
+        trollLoop();
+      }
+    };
+  </script>
+</body>
+</html>
